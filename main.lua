@@ -27,30 +27,60 @@
 require "cell"
 require "grid"
 
-local gridSizeX = 5
-local gridSizeY = 5
+local displayX = display.contentWidth
+local displayY = display.contentHeight
+local centerX = display.contentCenterX
+local centerY = display.contentCenterY
 
--- Draws grid
-function draw_grid(array)
-    for _, y in ipairs(array:getGrid()) do
-        local row = {}
-        for _, item in ipairs(y) do
+local gridSizeX = 50
+local gridSizeY = 50
+
+local minCellSize = 2
+local maxCellSize = 20
+local cellSize = math.min(displayX / gridSizeX, displayY / gridSizeY)
+-- Clamp cell size
+local drawCellSize = (cellSize > maxCellSize and maxCellSize) or 
+                     (cellSize < minCellSize and minCellSize) or
+                     (cellSize)
+
+local gridGroup = display.newGroup()
+gridGroup.x = centerX - (drawCellSize*gridSizeX)/2
+gridGroup.y = centerY - (drawCellSize*gridSizeY)/2
+
+
+-- Empties display objects of children
+function clear_children(object)
+
+    while object.numChildren > 0 do
+        local child = object[1]
+        if child then child:removeSelf() end
+    end
+
+    return object
+end
+
+function draw_grid(gridObject)
+    local offset = drawCellSize / 2
+    gridGroup = clear_children(gridGroup)
+
+    for y, col in ipairs(gridObject:getGrid()) do
+        for x, item in ipairs(col) do
             
             if item == 1 then
-                table.insert(row, "#")
-            else
-                table.insert(row, "O")
+                local cellObject = display.newCircle(
+                    drawCellSize * x - offset,
+                    drawCellSize * y - offset,
+                    drawCellSize / 2)
+                gridGroup:insert(cellObject)
+
             end
-
         end
-
-        print( table.concat(row, " "))
     end
 end
 
 -- Iterate evolution
 -- -- Holy balls this was a cluster headache
-function iterate(grid)
+function evolve(grid)
     local current = grid:getGrid()
     local next = Grid:new(gridSizeX, gridSizeY)
     
@@ -98,13 +128,13 @@ gridObject:setCoordinate(1, 3, 1)
 gridObject:setCoordinate(2, 3, 1)
 
 local next = gridObject
+
 print("starting:")
 draw_grid(next)
-print("")
 
-for i=1, 5 do
-    print("iteration: "..i)
-    next = iterate(next)
+function test()
+    next = evolve(next)
     draw_grid(next)
-    print("")
 end
+
+timer.performWithDelay(100, test, 50)
