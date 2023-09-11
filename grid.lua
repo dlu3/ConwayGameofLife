@@ -60,3 +60,17 @@ end
 function Grid:getCoordinate(x, y)
     return self.array[y][x]
 end
+
+function Grid:insertPattern(pattern, x, y)
+
+    x = x or 0
+    y = y or 0
+
+    for patternX, col in ipairs(pattern) do
+        for patternY,_ in ipairs(col) do
+            if self.getCoordinate(patternX + x, patternY + y) then
+               self.setCoordinate(patternX + x, patternY + y) 
+            end
+        end
+    end
+end
