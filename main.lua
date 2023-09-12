@@ -65,9 +65,8 @@ function clear_children(object, offset)
     local offset = offset or 0
     while object.numChildren > 0 + offset do
         local child = object[1 + offset]
-        if child then child:removeSelf() end
+        if child then child:removeSelf() child = nil end
     end
-
     return object
 end
 
