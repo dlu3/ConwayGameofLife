@@ -47,12 +47,24 @@ local gridGroup = display.newGroup()
 gridGroup.x = centerX - (drawCellSize*gridSizeX)/2
 gridGroup.y = centerY - (drawCellSize*gridSizeY)/2
 
+local backgroundSizeX = drawCellSize * gridSizeX
+local backgroundSizeY = drawCellSize * gridSizeY
+local background = display.newRect(
+        backgroundSizeX / 2,
+        backgroundSizeY / 2,
+        backgroundSizeX,
+        backgroundSizeY )
+    background.strokeWidth = 3
+    background:setFillColor(0)
+    background:setStrokeColor(1, 0, 0)
+    gridGroup:insert(background)
+
 
 -- Empties display objects of children
-function clear_children(object)
-
-    while object.numChildren > 0 do
-        local child = object[1]
+function clear_children(object, offset)
+    local offset = offset or 0
+    while object.numChildren > 0 + offset do
+        local child = object[1 + offset]
         if child then child:removeSelf() end
     end
 
@@ -61,7 +73,7 @@ end
 
 function draw_grid(gridObject)
     local offset = drawCellSize / 2
-    gridGroup = clear_children(gridGroup)
+    gridGroup = clear_children(gridGroup, 1)
 
     for y, col in ipairs(gridObject:getGrid()) do
         for x, item in ipairs(col) do
@@ -137,4 +149,4 @@ function test()
     draw_grid(next)
 end
 
-timer.performWithDelay(100, test, 50)
+timer.performWithDelay(100, test, 100)
