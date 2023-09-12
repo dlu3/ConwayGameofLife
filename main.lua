@@ -25,6 +25,7 @@
 ]]
 
 require "cell"
+require "pattern"
 require "grid"
 
 local displayX = display.contentWidth
@@ -128,15 +129,8 @@ end
 
 local gridObject = Grid:new(gridSizeX, gridSizeY)
 
---[[ gridObject:setCoordinate(3, 2, 1)
-gridObject:setCoordinate(3, 3, 1)
-gridObject:setCoordinate(3, 4, 1) ]]
-
-gridObject:setCoordinate(1, 1, 1)
-gridObject:setCoordinate(2, 2, 1)
-gridObject:setCoordinate(3, 2, 1)
-gridObject:setCoordinate(1, 3, 1)
-gridObject:setCoordinate(2, 3, 1)
+gridObject:insertPattern(Pattern:getPattern("glider_r"), 5, 0)
+gridObject:insertPattern(Pattern:getPattern("lightweight_spaceship_r"), 0, 10)
 
 local next = gridObject
 
