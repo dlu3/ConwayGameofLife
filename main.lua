@@ -131,6 +131,11 @@ local gridObject = Grid:new(gridSizeX, gridSizeY)
 
 gridObject:insertPattern(Pattern:getPattern("glider_r"), 5, 0)
 gridObject:insertPattern(Pattern:getPattern("lightweight_spaceship_r"), 0, 10)
+gridObject:insertPattern(Pattern:getPattern("blinker_h"), 1, 18)
+gridObject:insertPattern(Pattern:getPattern("blinker_v"), 1, 21)
+gridObject:insertPattern(Pattern:getPattern("block"), 1, 26)
+
+
 
 local next = gridObject
 
@@ -142,4 +147,4 @@ function test()
     draw_grid(next)
 end
 
-timer.performWithDelay(100, test, 100)
+timer.performWithDelay(100, test, 200)

@@ -2,6 +2,22 @@ Pattern = {}
 Pattern.__index = Pattern
 
 local patterns = {
+    blinker_h = {
+        {1, 1},
+        {2, 1},
+        {3, 1}
+    },
+    blinker_v = {
+        {1, 1},
+        {1, 2},
+        {1, 3}
+    },
+    block = {
+        {1, 1},
+        {2, 1},
+        {1, 2},
+        {2, 2}
+    },
    glider_r = {
         {3, 1},
         {1, 2},
