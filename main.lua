@@ -27,6 +27,9 @@
 require "cell"
 require "pattern"
 require "grid"
+require "modules.cell"
+require "modules.pattern"
+require "modules.grid"
 
 local displayX = display.contentWidth
 local displayY = display.contentHeight
