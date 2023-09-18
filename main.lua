@@ -24,9 +24,6 @@
 
 ]]
 
-require "cell"
-require "pattern"
-require "grid"
 require "modules.cell"
 require "modules.pattern"
 require "modules.grid"
@@ -36,8 +33,8 @@ local displayY = display.contentHeight
 local centerX = display.contentCenterX
 local centerY = display.contentCenterY
 
-local gridSizeX = 50
-local gridSizeY = 50
+local gridSizeX = 200
+local gridSizeY = 200
 
 local minCellSize = 2
 local maxCellSize = 20
@@ -132,13 +129,14 @@ end
 
 local gridObject = Grid:new(gridSizeX, gridSizeY)
 
-gridObject:insertPattern(Pattern:getPattern("glider_r"), 5, 0)
+--[[ gridObject:insertPattern(Pattern:getPattern("glider_r"), 5, 0)
 gridObject:insertPattern(Pattern:getPattern("lightweight_spaceship_r"), 0, 10)
 gridObject:insertPattern(Pattern:getPattern("blinker_h"), 1, 18)
 gridObject:insertPattern(Pattern:getPattern("blinker_v"), 1, 21)
-gridObject:insertPattern(Pattern:getPattern("block"), 1, 26)
+gridObject:insertPattern(Pattern:getPattern("block"), 1, 26) ]]
 
-
+-- To 19th 12:50 AM
+gridObject:setRandomGrid(5000)
 
 local next = gridObject
 

@@ -78,3 +78,25 @@ function Grid:insertPattern(pattern, x, y)
 
     end
 end
+
+-- From 19th 12:19 AM
+function Grid:setRandomGrid(maxVal)
+
+    local iteration = 1
+    while iteration < maxVal do
+        
+        local randX = math.random(1, self.width)
+        local randY = math.random(1, self.height)
+
+        while self:getCoordinate(randX, randY) == 1 do
+            randX = math.random(1, self.width)
+            randY = math.random(1, self.height)
+        end
+
+        self:setCoordinate(randX, randY, 1)
+        iteration = iteration + 1
+
+    end
+    print(iteration)
+
+end
