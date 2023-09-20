@@ -24,9 +24,11 @@
 
 ]]
 
-require "cell"
-require "pattern"
-require "grid"
+require "modules.pattern"
+require "modules.grid"
+
+require("unittests.lunatest")
+require("unittests.Mytests")
 
 local displayX = display.contentWidth
 local displayY = display.contentHeight
