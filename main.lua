@@ -39,7 +39,7 @@ local centerY = display.contentCenterY
 local gridSizeX = 200
 local gridSizeY = 200
 
-local minCellSize = 2
+local minCellSize = 1
 local maxCellSize = 20
 local cellSize = math.min(displayX / gridSizeX, displayY / gridSizeY)
 -- Clamp cell size
