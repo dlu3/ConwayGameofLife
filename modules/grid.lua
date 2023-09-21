@@ -1,6 +1,7 @@
 Grid = {}
 Grid.__index = Grid
 
+-- List of relative neighbour coordinates
 local coordinates = {
     {x = -1, y = -1}, 
     {x = 0, y = -1}, 
@@ -69,9 +70,6 @@ function Grid:insertPattern(pattern, x, y)
     for _, coordinates in ipairs(pattern) do
         patternX = coordinates[1]
         patternY = coordinates[2]
-
-        print(patternX.." "..patternY)
-
         if self:getCoordinate(patternX + x, patternY + y) then
             self:setCoordinate(patternX + x, patternY + y, 1) 
          end
