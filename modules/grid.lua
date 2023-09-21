@@ -80,6 +80,11 @@ end
 -- From 19th 12:19 AM
 function Grid:setRandomGrid(maxVal)
 
+    -- Validate at composer branch instead
+    if maxVal > self.width * self.height then
+        error("IO: Number of random cells exceed grid size")
+    end
+
     local iteration = 1
     while iteration < maxVal do
         
