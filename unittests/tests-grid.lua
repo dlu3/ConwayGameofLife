@@ -10,8 +10,13 @@ function test_grid_exists()
     assert_true(grid)
 end
 
--- assert neighbour function
--- assistor function
+function test_grid_blinker_exists()
+    assert_equal(grid:getCoordinate(4, 3), 1)
+    assert_equal(grid:getCoordinate(4, 4), 1)
+    assert_equal(grid:getCoordinate(4, 5), 1)
+end
+
+-- assert neighbour functions
 local function getSum(table)
     local sum = 0
     for i=1, #table do
