@@ -1,4 +1,8 @@
 local composer = require( "composer" )
+local grid =     require(" modules.grid ")
+local pattern =  require( "modules.pattern" )
+local display =  require( "modules.display" )
+
 
 local scene = composer.newScene()
 
@@ -7,8 +11,27 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
+-- Init variables
+local displayX = display.contentWidth
+local displayY = display.contentHeight
+local centerX = display.contentCenterX
+local centerY = display.contentCenterY
 
+local gridSizeX = composer.getVariable( "gridSizeX" )
+local gridSizeY = composer.getVariable( "gridSizeY" )
 
+local minCellSize = 1
+local maxCellSize = 20
+local cellSize = math.min(
+    displayX / gridSizeX, 
+    displayY / gridSizeY )
+
+-- clamp cell sizes
+local drawCellSize = (cellSize > maxCellSize and maxCellSize) or 
+                     (cellSize < minCellSize and minCellSize) or
+                     (cellSize)
+
+local gridObject = Grid:new(gridSizeX, gridSizeY)
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -19,6 +42,20 @@ function scene:create( event )
 
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
+
+    local backgroundSizeX = drawCellSize * gridSizeX
+    local backgroundSizeY = drawCellSize * gridSizeY
+    local background = display.newRect(
+        backgroundSizeX / 2,
+        backgroundSizeY / 2,
+        backgroundSizeX,
+        backgroundSizeY )
+    background.strokeWidth = 3
+    background:setFillColor(0)
+    background:setStrokeColor(1, 0, 0)
+    sceneGroup:insert(background)
+
+    
 
 end
 
@@ -63,7 +100,6 @@ function scene:destroy( event )
 
 end
 
-
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
@@ -74,3 +110,4 @@ scene:addEventListener( "destroy", scene )
 -- -----------------------------------------------------------------------------------
 
 return scene
+

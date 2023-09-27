@@ -12,13 +12,11 @@ local coordinates = {
     {x = 1, y = 1}}
 
 -- Init new grid from arguments
--- Note to self  : int cell looks bad, makes summing easy tho
--- Note to self 2: next time, read up how metatables relate to oop
 function Grid:new(width, height)
     local self = setmetatable({}, Grid)
 
-    self.width = width or 0
-    self.height = height or 0
+    self.width = width or 1
+    self.height = height or 1
     self.array = {}
     
     -- generate 2d array
@@ -30,6 +28,14 @@ function Grid:new(width, height)
     end
 
     return self
+end
+
+function Grid:getWidth()
+    return self.x
+end
+
+function Grid:getHeight()
+    return self.y
 end
 
 -- Get 8 neighbours of x,y coordinates
@@ -63,8 +69,8 @@ end
 
 function Grid:insertPattern(pattern, x, y)
 
-    x = x or 0
-    y = y or 0
+    x = x
+    y = y
 
     for _, coordinates in ipairs(pattern) do
         patternX = coordinates[1]

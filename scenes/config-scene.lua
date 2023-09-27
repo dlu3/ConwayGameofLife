@@ -20,6 +20,12 @@ function scene:create( event )
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
 
+    local buttonGroup = display.newGroup()
+    local sliderGridX = widget.newButton( options )
+    local sliderGridY = widget.newButton( options )
+    local sliderIterationSpeed = widget.newSlider( options )
+    local textFieldRandomSeed = native.newTextField( centerX, centerY, width, height )
+
 end
 
 
