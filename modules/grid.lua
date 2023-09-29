@@ -38,6 +38,14 @@ function Grid:getHeight()
     return self.y
 end
 
+function Grid:getGrid()
+    return self.array
+end
+
+function Grid:getCoordinate(x, y)
+    return self.array[y][x]
+end
+
 -- Get 8 neighbours of x,y coordinates
 function Grid:getNeighbours(x, y)
     local neighbours = {}
@@ -57,14 +65,6 @@ function Grid:setCoordinate(x, y, val)
         self.array[y][x] = val
     end
 
-end
-
-function Grid:getGrid()
-    return self.array
-end
-
-function Grid:getCoordinate(x, y)
-    return self.array[y][x]
 end
 
 function Grid:insertPattern(pattern, x, y)

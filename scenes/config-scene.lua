@@ -1,4 +1,6 @@
 local composer = require( "composer" )
+local widget = require("widget")
+local native = require("native")
 
 local scene = composer.newScene()
 
@@ -8,7 +10,15 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 
+-- 
+-- widget function events 
+--
 
+local function event_start_generation(event)
+   
+    
+    composer.gotoScene( "scenes.grid-scene" )
+end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -21,10 +31,49 @@ function scene:create( event )
     -- Code here runs when the scene is first created but has not yet appeared on screen
 
     local buttonGroup = display.newGroup()
-    local sliderGridX = widget.newButton( options )
-    local sliderGridY = widget.newButton( options )
-    local sliderIterationSpeed = widget.newSlider( options )
-    local textFieldRandomSeed = native.newTextField( centerX, centerY, width, height )
+    local sliderGridX = widget.newSlider( 
+        {
+            id = "slider_GridX",
+            x = display.contentCenterX,
+            y = display.contentCenterY - 200,
+            width = 200,
+            value = 0
+        }
+     )
+    local sliderGridY = widget.newSlider( 
+        {
+            id = "slider_GridY",
+            x = display.contentCenterX,
+            y = display.contentCenterY - 100,
+            width = 200,
+            value = 0
+        }
+     )
+    local sliderIterationSpeed = widget.newSlider( 
+        {
+            id = "slider_IterationSpeed",
+            x = display.contentCenterX,
+            y = display.contentCenterY,
+            width = 200,
+            value = 0
+        }
+     )
+    local textFieldRandomSeed = native.newTextField(
+        display.contentCenterX,
+        display.contentCenterY + 100,
+        200,
+        100
+     )
+     local buttonStartGame = widget.newButton( 
+        {
+            id = "button_StartGame",
+            label = "Start Generation",
+            x = display.contentCenterX,
+            y = display.contentCenterY + 200,
+            width = 200,
+            height = 100
+        }
+      )
 
 end
 

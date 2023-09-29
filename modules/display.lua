@@ -8,19 +8,19 @@ function clear_children(object, offset)
     return object
 end
 
-function draw_grid(gridObject)
-    local offset = drawCellSize / 2
-    gridGroup = clear_children(gridGroup, 1)
+function draw_grid(gridObject, displayGroup, cellSize)
+    local offset = cellSize / 2
+    displayGroup = clear_children(displayGroup, 1)
 
     for y, col in ipairs(gridObject:getGrid()) do
         for x, item in ipairs(col) do
             
             if item == 1 then
                 local cellObject = display.newCircle(
-                    drawCellSize * x - offset,
-                    drawCellSize * y - offset,
-                    drawCellSize / 2)
-                gridGroup:insert(cellObject)
+                    cellSize * x - offset,
+                    cellSize * y - offset,
+                    cellSize / 2)
+                displayGroup:insert(cellObject)
 
             end
         end
@@ -28,9 +28,9 @@ function draw_grid(gridObject)
 end
 
 -- Iterate evolution
-function evolve(grid)
+function evolve(grid, x, y)
     local current = grid:getGrid()
-    local next = Grid:new(gridSizeX, gridSizeY)
+    local next = Grid:new(x, y)
     
     for y, col in ipairs(current) do
         local row = {}
