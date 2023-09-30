@@ -31,40 +31,66 @@ function scene:create( event )
     -- Code here runs when the scene is first created but has not yet appeared on screen
 
     local buttonGroup = display.newGroup()
-    local sliderGridX = widget.newSlider( 
+
+
+    local textGridX = display.newText(
         {
-            id = "slider_GridX",
+            text = "Grid size X: ",
             x = display.contentCenterX,
-            y = display.contentCenterY - 200,
-            width = 200,
-            value = 0
+            y = display.contentCenterY - 240,
         }
-     )
-    local sliderGridY = widget.newSlider( 
+    )
+    local textfield_GridX = native.newTextField( 
+        display.contentCenterX,
+        display.contentCenterY - 200,
+        100,
+        40 )
+    textfield_GridX.inputType = "number"
+    textfield_GridX.text = "1"
+
+     local textGridY = display.newText(
         {
-            id = "slider_GridY",
+            text = "Grid size Y: ",
             x = display.contentCenterX,
-            y = display.contentCenterY - 100,
-            width = 200,
-            value = 0
+            y = display.contentCenterY - 140,
         }
+    )
+    local textfield_GridY = native.newTextField( 
+        display.contentCenterX,
+        display.contentCenterY - 100,
+        100,
+        20
      )
-    local sliderIterationSpeed = widget.newSlider( 
+    
+    local textIterationSpeed = display.newText(
         {
-            id = "slider_IterationSpeed",
+            text = "Iteration speed: ",
             x = display.contentCenterX,
-            y = display.contentCenterY,
-            width = 200,
-            value = 0
+            y = display.contentCenterY - 40,
         }
+    )
+    local textfield_IterationSpeed = native.newTextField( 
+        display.contentCenterX,
+        display.contentCenterY,
+        100,
+        20
      )
+
+     local textRandomSeed = display.newText(
+        {
+            text = "Random seed: ",
+            x = display.contentCenterX,
+            y = display.contentCenterY + 60,
+        }
+    )
     local textFieldRandomSeed = native.newTextField(
         display.contentCenterX,
         display.contentCenterY + 100,
         200,
         100
      )
-     local buttonStartGame = widget.newButton( 
+
+    local buttonStartGame = widget.newButton( 
         {
             id = "button_StartGame",
             label = "Start Generation",
@@ -73,7 +99,20 @@ function scene:create( event )
             width = 200,
             height = 100
         }
-      )
+    )
+
+    -- anonymous functions and closures
+    local function textListener(event, composerTarget)
+        if event.phase == "ended" or event.phase == "submitted" then
+            composer.setVariable( composerTarget, event.target.text )
+            print(composerTarget.." "..composer.getVariable( composerTarget ))
+            return
+        end
+    end
+
+    textfield_GridX:addEventListener("userInput", function(target) textListener(target, "gridSizeX") end)
+    textfield_GridY:addEventListener("userInput", function(target) textListener(target, "gridSizeY") end)
+    textfield_IterationSpeed:addEventListener("userInput", function(target) textListener(target, "iterationSpeed") end)
 
 end
 
