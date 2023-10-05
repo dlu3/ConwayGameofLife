@@ -32,10 +32,10 @@ function scene:create( event )
 
     local buttonGroup = display.newGroup()
 
-
+    -- Width
     local textGridX = display.newText(
         {
-            text = "Grid size X: ",
+            text = "Grid Width: ",
             x = display.contentCenterX,
             y = display.contentCenterY - 240,
         }
@@ -48,9 +48,10 @@ function scene:create( event )
     textfield_GridX.inputType = "number"
     textfield_GridX.text = "1"
 
+    -- Height
      local textGridY = display.newText(
         {
-            text = "Grid size Y: ",
+            text = "Grid Height: ",
             x = display.contentCenterX,
             y = display.contentCenterY - 140,
         }
@@ -59,9 +60,10 @@ function scene:create( event )
         display.contentCenterX,
         display.contentCenterY - 100,
         100,
-        20
-     )
+        40
+    )
     
+    -- Speed
     local textIterationSpeed = display.newText(
         {
             text = "Iteration speed: ",
@@ -74,9 +76,10 @@ function scene:create( event )
         display.contentCenterY,
         100,
         20
-     )
+    )
 
-     local textRandomSeed = display.newText(
+    -- Seed
+    local textRandomSeed = display.newText(
         {
             text = "Random seed: ",
             x = display.contentCenterX,
@@ -88,8 +91,9 @@ function scene:create( event )
         display.contentCenterY + 100,
         200,
         100
-     )
+    )
 
+    -- Start
     local buttonStartGame = widget.newButton( 
         {
             id = "button_StartGame",
@@ -97,22 +101,35 @@ function scene:create( event )
             x = display.contentCenterX,
             y = display.contentCenterY + 200,
             width = 200,
-            height = 100
+            height = 100,
+            onRelease = function(event)
+                composer.gotoScene("scenes.grid-scene", 
+            {
+                effect = "fade",
+                time = 500,
+                params = {
+                    width = composer.getVariable("gridSizeX"),
+                    height = composer.getVariable("gridSizeY"),
+                    speed = composer.getVariable("iterationSpeed")
+                }
+            })
+            end
         }
     )
 
     -- anonymous functions and closures
-    local function textListener(event, composerTarget)
+    local function variableListener(event, composerTarget)
         if event.phase == "ended" or event.phase == "submitted" then
             composer.setVariable( composerTarget, event.target.text )
             print(composerTarget.." "..composer.getVariable( composerTarget ))
             return
         end
     end
+    
+    textfield_GridX:addEventListener("userInput", function(target) variableListener(target, "gridSizeX") end)
+    textfield_GridY:addEventListener("userInput", function(target) variableListener(target, "gridSizeY") end)
+    textfield_IterationSpeed:addEventListener("userInput", function(target) variableListener(target, "iterationSpeed") end)
 
-    textfield_GridX:addEventListener("userInput", function(target) textListener(target, "gridSizeX") end)
-    textfield_GridY:addEventListener("userInput", function(target) textListener(target, "gridSizeY") end)
-    textfield_IterationSpeed:addEventListener("userInput", function(target) textListener(target, "iterationSpeed") end)
 
 end
 

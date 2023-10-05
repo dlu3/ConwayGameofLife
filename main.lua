@@ -25,9 +25,9 @@
 
 local composer = require( "composer" )
 
-composer.setVariable( "gridSizeX", 0 )
-composer.setVariable( "gridSizeY", 0 )
-composer.setVariable( "iterationSpeed", 0 )
-composer.setVariable( "randomSeed", 0 )
+composer.setVariable( "gridSizeX", 10 )
+composer.setVariable( "gridSizeY", 10 )
+composer.setVariable( "iterationSpeed", 500 )
+composer.setVariable( "randomSeed", 1234 )
 
-composer.gotoScene( "scenes.config-scene")
+composer.gotoScene( "scenes.grid-scene")
