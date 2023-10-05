@@ -137,9 +137,9 @@ function Grid:setAllRandom(seed)
 
     for y = 1, self.height, 1 do
         for x = 1, self.width, 1 do
-            local v = math.floor(math.random(0, 1))
-           self.array[y][x] = v
-           print(v)
+            local v = math.floor(math.random(0, 4))
+            if v < 4 then self.array[y][x] = 0
+            elseif v == 4 then self.array[y][x] = 1 end
         end
     end
 

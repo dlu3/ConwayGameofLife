@@ -25,9 +25,10 @@
 
 local composer = require( "composer" )
 
-composer.setVariable( "gridSizeX", 10 )
-composer.setVariable( "gridSizeY", 10 )
-composer.setVariable( "iterationSpeed", 500 )
+-- Default values will show up in config scene
+composer.setVariable( "gridSizeX", 20 )
+composer.setVariable( "gridSizeY", 20 )
+composer.setVariable( "iterationSpeed", 100 )
 composer.setVariable( "randomSeed", 1234 )
 
-composer.gotoScene( "scenes.grid-scene")
+composer.gotoScene( "scenes.config-scene")

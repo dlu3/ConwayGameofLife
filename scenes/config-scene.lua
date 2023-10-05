@@ -9,14 +9,20 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
+local labelWidth = 100
+local labelHeight = 0
+local fieldWidth = 100
+local fieldHeight = 30
+
+local centerOffsetMultiplier = 0.6
+
+
 
 -- 
 -- widget function events 
 --
 
-local function event_start_generation(event)
-   
-    
+local function event_start_generation(event)    
     composer.gotoScene( "scenes.grid-scene" )
 end
 
@@ -36,64 +42,106 @@ function scene:create( event )
     local textGridX = display.newText(
         {
             text = "Grid Width: ",
-            x = display.contentCenterX,
+            align = "right",
+            width = labelWidth,
+            height = labelHeight,
+            x = display.contentCenterX - labelWidth * centerOffsetMultiplier,
             y = display.contentCenterY - 240,
+
         }
     )
     local textfield_GridX = native.newTextField( 
-        display.contentCenterX,
-        display.contentCenterY - 200,
-        100,
-        40 )
+        display.contentCenterX + fieldWidth * centerOffsetMultiplier,
+        display.contentCenterY - 240,
+        fieldWidth,
+        fieldHeight 
+    )
     textfield_GridX.inputType = "number"
-    textfield_GridX.text = "1"
+    textfield_GridX.text = tostring(composer.getVariable("gridSizeX"))
 
     -- Height
      local textGridY = display.newText(
         {
             text = "Grid Height: ",
-            x = display.contentCenterX,
-            y = display.contentCenterY - 140,
+            align = "right",
+            width = labelWidth,
+            height = labelHeight,
+            x = display.contentCenterX - labelWidth * centerOffsetMultiplier,
+            y = display.contentCenterY - 190,
         }
     )
     local textfield_GridY = native.newTextField( 
-        display.contentCenterX,
-        display.contentCenterY - 100,
-        100,
-        40
+        display.contentCenterX + fieldWidth * centerOffsetMultiplier,
+        display.contentCenterY - 190,
+        fieldWidth,
+        fieldHeight
     )
+    textfield_GridY.inputType = "number"
+    textfield_GridY.text = tostring(composer.getVariable("gridSizeY"))
+
     
     -- Speed
     local textIterationSpeed = display.newText(
         {
             text = "Iteration speed: ",
-            x = display.contentCenterX,
-            y = display.contentCenterY - 40,
+            align = "right",
+            width = labelWidth,
+            height = labelHeight,
+            x = display.contentCenterX - labelWidth * centerOffsetMultiplier,
+            y = display.contentCenterY - 140,
         }
     )
     local textfield_IterationSpeed = native.newTextField( 
-        display.contentCenterX,
-        display.contentCenterY,
-        100,
-        20
+        display.contentCenterX + fieldWidth * centerOffsetMultiplier,
+        display.contentCenterY - 140,
+        fieldWidth,
+        fieldHeight
+    )
+    textfield_IterationSpeed.inputType = "number"
+    textfield_IterationSpeed.text = tostring(composer.getVariable("iterationSpeed"))
+
+    -- -- Random -- --
+    -- Check Random
+    local textDoRandom = display.newText(
+        {
+            text = "Do Random?",
+            align = "right",
+            width = labelWidth,
+            height = labelHeight,
+            x = display.contentCenterX - labelWidth * centerOffsetMultiplier,
+            y = display.contentCenterY -90,
+        }
+    )
+    local switch_DoRandom = widget.newSwitch(
+        {
+            x = display.contentCenterX + 30,
+            y = display.contentCenterY - 90,
+        }
     )
 
     -- Seed
     local textRandomSeed = display.newText(
         {
             text = "Random seed: ",
-            x = display.contentCenterX,
-            y = display.contentCenterY + 60,
+            align = "right",
+            width = labelWidth,
+            height = labelHeight,
+            x = display.contentCenterX - labelWidth * centerOffsetMultiplier,
+            y = display.contentCenterY - 40,
         }
     )
-    local textFieldRandomSeed = native.newTextField(
-        display.contentCenterX,
-        display.contentCenterY + 100,
-        200,
-        100
+    textRandomSeed.isVisible = false
+    local textfield_RandomSeed = native.newTextField(
+        display.contentCenterX + fieldWidth * centerOffsetMultiplier,
+        display.contentCenterY - 40,
+        fieldWidth,
+        fieldHeight
     )
+    textfield_RandomSeed.inputType = "number"
+    textfield_RandomSeed.text = tostring(composer.getVariable("randomSeed"))
+    textfield_RandomSeed.isVisible = false
 
-    -- Start
+    -- Start button
     local buttonStartGame = widget.newButton( 
         {
             id = "button_StartGame",
@@ -104,20 +152,48 @@ function scene:create( event )
             height = 100,
             onRelease = function(event)
                 composer.gotoScene("scenes.grid-scene", 
-            {
-                effect = "fade",
-                time = 500,
-                params = {
-                    width = composer.getVariable("gridSizeX"),
-                    height = composer.getVariable("gridSizeY"),
-                    speed = composer.getVariable("iterationSpeed")
+                {
+                    effect = "fade",
+                    time = 500,
+                    params = {
+                        width = composer.getVariable("gridSizeX"),
+                        height = composer.getVariable("gridSizeY"),
+                        speed = composer.getVariable("iterationSpeed"),
+                        random = switch_DoRandom.isOn
                 }
-            })
+                })
+                composer.removeScene("scenes.config-scene")
             end
         }
     )
 
-    -- anonymous functions and closures
+    sceneGroup:insert(textGridX)
+    sceneGroup:insert(textGridY)
+    sceneGroup:insert(textIterationSpeed)
+    sceneGroup:insert(textDoRandom)
+    sceneGroup:insert(textRandomSeed)
+
+    sceneGroup:insert(textfield_GridX)
+    sceneGroup:insert(textfield_GridY)
+    sceneGroup:insert(textfield_IterationSpeed)
+    sceneGroup:insert(switch_DoRandom)
+    sceneGroup:insert(textfield_RandomSeed)
+
+    sceneGroup:insert(buttonStartGame)
+
+    local function handleRandomListener(event)
+        if event.target.isOn == true then
+            textRandomSeed.isVisible = true
+            textfield_RandomSeed.isVisible = true
+
+            print(event.target.isOn)
+        elseif event.target.isOn == false then
+            textRandomSeed.isVisible = false
+            textfield_RandomSeed.isVisible = false
+        end
+    end
+
+    -- anonymous function and closure
     local function variableListener(event, composerTarget)
         if event.phase == "ended" or event.phase == "submitted" then
             composer.setVariable( composerTarget, event.target.text )
@@ -125,11 +201,12 @@ function scene:create( event )
             return
         end
     end
-    
+
     textfield_GridX:addEventListener("userInput", function(target) variableListener(target, "gridSizeX") end)
     textfield_GridY:addEventListener("userInput", function(target) variableListener(target, "gridSizeY") end)
     textfield_IterationSpeed:addEventListener("userInput", function(target) variableListener(target, "iterationSpeed") end)
-
+    switch_DoRandom:addEventListener("tap", handleRandomListener)
+    textfield_RandomSeed:addEventListener("userInput", function(target) variableListener(target, "randomSeed") end)
 
 end
 
@@ -158,6 +235,8 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
+
+
 
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen

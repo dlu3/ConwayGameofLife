@@ -14,29 +14,27 @@ local native = require("native")
 -- -----------------------------------------------------------------------------------
 
 -- Init variables
-local displayX = display.contentWidth
-local displayY = display.contentHeight
+
+local playing = false
+local minCellSize = 1
+local maxCellSize = 20
 
 local width = composer.getVariable( "gridSizeX" )
 local height = composer.getVariable( "gridSizeY" )
 local iterationSpeed = composer.getVariable( "iterationSpeed" )
 local randomSeed = composer.getVariable( "randomSeed" )
 
-local minCellSize = 1
-local maxCellSize = 20
-local cellSize = math.min(
-    displayX / width, 
-    displayY / height )
-
 -- clamp cell sizes
-local drawCellSize = (cellSize > maxCellSize and maxCellSize) or 
-                     (cellSize < minCellSize and minCellSize) or
-                     (cellSize)
+local smallestCellSize = math.min(
+    display.contentWidth / width, 
+    display.contentHeight / height )
+local finalCellSize = (smallestCellSize > maxCellSize and maxCellSize) or 
+                     (smallestCellSize < minCellSize and minCellSize) or
+                     (smallestCellSize)
 
-local gridObject = Grid:new(width, height)
-
-local function draw_grid(gridObject, displayGroup, cellSize)
-    local offset = cellSize / 2
+-- Display grid
+local function draw_grid(gridObject, displayGroup)
+    local offset = finalCellSize / 2
 
     -- Merge children clearer into function
     while displayGroup.numChildren > 1 do
@@ -49,19 +47,14 @@ local function draw_grid(gridObject, displayGroup, cellSize)
             
             if item == 1 then
                 local cellObject = display.newCircle(
-                    cellSize * x - offset,
-                    cellSize * y - offset,
-                    cellSize / 2)
+                    finalCellSize * x - offset,
+                    finalCellSize * y - offset,
+                    finalCellSize / 2)
                 displayGroup:insert(cellObject)
 
             end
         end
     end
-end
-
-local function iterate(grid, display)
-    grid:setEvolution()
-    draw_grid(grid, display, drawCellSize)
 end
 
 -- -----------------------------------------------------------------------------------
@@ -72,24 +65,33 @@ end
 function scene:create( event )
 
     local sceneGroup = self.view
+    local params = event.params
     
     -- Code here runs when the scene is first created but has not yet appeared on screen
 
     local gridGroup = display.newGroup()
-    gridGroup.x = display.contentCenterX - (drawCellSize * width) * 0.5
+    gridGroup.x = display.contentCenterX - (finalCellSize * width) * 0.5
     gridGroup.y = 0
 
     local controlGroup = display.newGroup()    
 
     local background = display.newRect(
-        drawCellSize * width/ 2,
-        drawCellSize * height / 2,
-        drawCellSize * width,
-        drawCellSize * height )
+        finalCellSize * width/ 2,
+        finalCellSize * height / 2,
+        finalCellSize * width,
+        finalCellSize * height )
     background.strokeWidth = 3
     background:setFillColor(0)
     background:setStrokeColor(1, 0, 0)
     gridGroup:insert(background)
+
+    local grid = Grid:new(width, height)
+    
+    if params.random == true then
+        grid:setAllRandom(randomSeed)
+    end
+
+    draw_grid(grid, gridGroup)
 
     local buttonPlay = widget.newButton( 
         {
@@ -99,15 +101,33 @@ function scene:create( event )
             y = display.contentCenterY + 200,
             width = 200,
             height = 100,
+            -- Shape properties
+            fillColor= { default = {1, 0.2, 0.5, 0.7}, over = {1, 0.2, 0.5, 1}},
             onRelease = function(event)
-                timer.performWithDelay( 500, iterate(gridObject, gridGroup), 200 )
+                if playing == false then
+                    timer.resume("play")
+                    event.target:setLabel("Stop Evolution")
+                    playing = true
+                elseif playing == true then
+                    timer.pause("play")
+                    event.target:setLabel("Start Evolution")
+                    playing = false
+                end
+                
             end
         }
     )
 
-    gridObject:setAllRandom()
-    draw_grid(gridObject, gridGroup, drawCellSize)
+    controlGroup:insert(buttonPlay)
 
+    timer.performWithDelay( 
+        iterationSpeed, 
+        function() 
+            grid:setEvolution() 
+            draw_grid(grid, gridGroup) end, 
+        -1, 
+        "play")
+    timer.pause("play")
 end
 
 -- show()
