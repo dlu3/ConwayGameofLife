@@ -1,6 +1,7 @@
 Grid = {}
 Grid.__index = Grid
 
+-- List of relative neighbour coordinates
 local coordinates = {
     {x = -1, y = -1}, 
     {x = 0, y = -1}, 
@@ -160,4 +161,30 @@ function Grid:insertPattern(pattern, x, y)
          end
 
     end
+end
+
+-- From 19th 12:19 AM
+function Grid:setRandomGrid(maxVal)
+
+    -- Validate at composer branch instead
+    if maxVal > self.width * self.height then
+        error("IO: Number of random cells exceed grid size")
+    end
+
+    local iteration = 1
+    while iteration < maxVal do
+        
+        local randX = math.random(1, self.width)
+        local randY = math.random(1, self.height)
+
+        while self:getCoordinate(randX, randY) == 1 do
+            randX = math.random(1, self.width)
+            randY = math.random(1, self.height)
+        end
+
+        self:setCoordinate(randX, randY, 1)
+        iteration = iteration + 1
+
+    end
+    print(iteration)
 end
