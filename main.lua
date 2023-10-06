@@ -25,4 +25,9 @@ composer.setVariable( "gridSizeY", 20 )
 composer.setVariable( "iterationSpeed", 100 )
 composer.setVariable( "randomSeed", 1234 )
 
-composer.gotoScene( "scenes.config-scene")
+local options = {
+    effect = "fade",
+    time = 1000
+}
+
+composer.gotoScene( "scenes.config-scene", options)

@@ -145,7 +145,7 @@ function scene:create( event )
                 composer.gotoScene("scenes.grid-scene", 
                 {
                     effect = "fade",
-                    time = 500,
+                    time = 1000,
                     params = {
                         width = composer.getVariable("gridSizeX"),
                         height = composer.getVariable("gridSizeY"),
