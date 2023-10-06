@@ -50,10 +50,10 @@ end
 -- Get 8 neighbours of x,y coordinates
 function Grid:getNeighbours(x, y)
     local neighbours = {}
-    for _, coords in ipairs(coordinates) do
-        local xcoord, ycoord = x + coords.x, y + coords.y
+    for i=1, #coordinates do
+        local xcoord, ycoord = x + coordinates[i].x, y + coordinates[i].y
         if self.array[ycoord] and self.array[ycoord][xcoord] then
-            table.insert(neighbours, self.array[ycoord][xcoord])
+            neighbours[#neighbours+1] = self.array[ycoord][xcoord]
         end
     end
     return neighbours
@@ -62,8 +62,8 @@ end
 -- Set evolve function as part of grid object
 function Grid:setEvolution()
 
-    for y, col in ipairs(self.array) do
-        for x, item in ipairs(col) do
+    for y = 1, #self.array do
+        for x = 1, #self.array[y] do
             
             -- Process neighbours
             local sum = 0
@@ -73,7 +73,7 @@ function Grid:setEvolution()
             end
 
             -- Apply rules
-            if item == 1 then
+            if self.array[y][x] == 1 then
                 
                 if sum == 2 or sum == 3 then
                     self:setCoordinate(x, y, 1)
@@ -81,7 +81,7 @@ function Grid:setEvolution()
                     self:setCoordinate(x, y, 0)
                 end
 
-            elseif item == 0 then
+            elseif self.array[y][x] == 0 then
 
                 if sum == 3 then
                     self:setCoordinate(x, y, 1)
@@ -152,9 +152,9 @@ function Grid:insertPattern(pattern, x, y)
     local x = x
     local y = y
 
-    for _, coordinates in ipairs(pattern) do
-        patternX = coordinates[1]
-        patternY = coordinates[2]
+    for i = 1, #pattern do
+        patternX = pattern[i].x
+        patternY = pattern[i].y
 
         if self:getCoordinate(patternX + x, patternY + y) then
             self:setCoordinate(patternX + x, patternY + y, 1) 

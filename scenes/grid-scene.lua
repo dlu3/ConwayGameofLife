@@ -42,6 +42,7 @@ local controlGroup = display.newGroup()
 -- Display grid
 local function draw_grid(gridObject, displayGroup)
     local offset = finalCellSize / 2
+    local gridArray = gridObject:getGrid()
 
     -- Merge children clearer into function
     while displayGroup.numChildren > 1 do
@@ -49,10 +50,9 @@ local function draw_grid(gridObject, displayGroup)
         if child then child:removeSelf() child = nil end
     end
 
-    for y, col in ipairs(gridObject:getGrid()) do
-        for x, item in ipairs(col) do
-            
-            if item == 1 then
+    for y = 1, #gridArray do
+        for x = 1, #gridArray[y] do
+            if gridArray[y][x] == 1 then
                 local cellObject = display.newCircle(
                     finalCellSize * x - offset,
                     finalCellSize * y - offset,
@@ -101,7 +101,7 @@ function scene:create( event )
             draw_grid(nextGrid, gridGroup) end, 
         -1, 
         "play")
-    timer.pause("play")
+    
 
     local buttonPlay = widget.newButton( 
         {
@@ -131,6 +131,7 @@ function scene:create( event )
     buttonPlay.shape = "roundedRect"
 
     controlGroup:insert(buttonPlay)
+    timer.pause("play")
 
 end
 
