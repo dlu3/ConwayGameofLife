@@ -68,8 +68,8 @@ function Grid:setEvolution()
             -- Process neighbours
             local sum = 0
             local neighbours = self:getNeighbours(x, y)
-            for _, neighbour in ipairs(neighbours) do
-                sum = sum + neighbour
+            for i = 1, #neighbours do
+                sum = sum + neighbours[i]
             end
 
             -- Apply rules
@@ -153,8 +153,8 @@ function Grid:insertPattern(pattern, x, y)
     local y = y
 
     for i = 1, #pattern do
-        patternX = pattern[i].x
-        patternY = pattern[i].y
+        local patternX = pattern[i].x
+        local patternY = pattern[i].y
 
         if self:getCoordinate(patternX + x, patternY + y) then
             self:setCoordinate(patternX + x, patternY + y, 1) 
