@@ -15,12 +15,6 @@
     Allor random seeds for init simulation state
     Allow saves
     Allow adjustment of iteration speed
-
-    Cells --> Grid --> Display
-
-    Cells/Grid do not store display information, handled by Display
-    Cell checking for    
-
 ]]
 
 local composer = require( "composer" )

@@ -19,6 +19,9 @@ local playing = false
 local minCellSize = 1
 local maxCellSize = 20
 
+local start = "Start"
+local stop = "Stop"
+
 local width = composer.getVariable( "gridSizeX" )
 local height = composer.getVariable( "gridSizeY" )
 local iterationSpeed = composer.getVariable( "iterationSpeed" )
@@ -31,6 +34,10 @@ local smallestCellSize = math.min(
 local finalCellSize = (smallestCellSize > maxCellSize and maxCellSize) or 
                      (smallestCellSize < minCellSize and minCellSize) or
                      (smallestCellSize)
+
+local startGrid = Grid:new(width, height)
+local gridGroup = display.newGroup()
+local controlGroup = display.newGroup()  
 
 -- Display grid
 local function draw_grid(gridObject, displayGroup)
@@ -69,11 +76,9 @@ function scene:create( event )
     
     -- Code here runs when the scene is first created but has not yet appeared on screen
 
-    local gridGroup = display.newGroup()
+    
     gridGroup.x = display.contentCenterX - (finalCellSize * width) * 0.5
     gridGroup.y = 0
-
-    local controlGroup = display.newGroup()    
 
     local background = display.newRect(
         finalCellSize * width/ 2,
@@ -85,49 +90,48 @@ function scene:create( event )
     background:setStrokeColor(1, 0, 0)
     gridGroup:insert(background)
 
-    local grid = Grid:new(width, height)
+    if params.random then startGrid:setAllRandom(randomSeed) end
+    local nextGrid = startGrid
+    draw_grid(nextGrid, gridGroup)
     
-    if params.random == true then
-        grid:setAllRandom(randomSeed)
-    end
-
-    draw_grid(grid, gridGroup)
+    timer.performWithDelay( 
+        iterationSpeed, 
+        function() 
+            nextGrid:setEvolution() 
+            draw_grid(nextGrid, gridGroup) end, 
+        -1, 
+        "play")
+    timer.pause("play")
 
     local buttonPlay = widget.newButton( 
         {
             id = "button_StartEvolution",
-            label = "Start Evolution",
+            label = start,
             x = display.contentCenterX,
             y = display.contentCenterY + 200,
-            width = 200,
-            height = 100,
+            width = 100,
+            height = 50,
             -- Shape properties
-            fillColor= { default = {1, 0.2, 0.5, 0.7}, over = {1, 0.2, 0.5, 1}},
+            shape = "roundedRect",
             onRelease = function(event)
                 if playing == false then
                     timer.resume("play")
-                    event.target:setLabel("Stop Evolution")
+                    event.target:setLabel(stop)
                     playing = true
                 elseif playing == true then
                     timer.pause("play")
-                    event.target:setLabel("Start Evolution")
+                    event.target:setLabel(start)
                     playing = false
                 end
                 
             end
         }
     )
+    buttonPlay.fillColor = { default = {1, 0.2, 0.5, 0.7}, over = {1, 0.2, 0.5, 1}}
+    buttonPlay.shape = "roundedRect"
 
     controlGroup:insert(buttonPlay)
 
-    timer.performWithDelay( 
-        iterationSpeed, 
-        function() 
-            grid:setEvolution() 
-            draw_grid(grid, gridGroup) end, 
-        -1, 
-        "play")
-    timer.pause("play")
 end
 
 -- show()
@@ -135,9 +139,11 @@ function scene:show( event )
 
     local sceneGroup = self.view
     local phase = event.phase
+    local params = event.params
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
+        
         
 
 

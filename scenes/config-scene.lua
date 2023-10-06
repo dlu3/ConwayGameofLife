@@ -16,16 +16,6 @@ local fieldHeight = 30
 
 local centerOffsetMultiplier = 0.6
 
-
-
--- 
--- widget function events 
---
-
-local function event_start_generation(event)    
-    composer.gotoScene( "scenes.grid-scene" )
-end
-
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -116,10 +106,11 @@ function scene:create( event )
         {
             x = display.contentCenterX + 30,
             y = display.contentCenterY - 90,
+            style = "checkbox"
         }
     )
 
-    -- Seed
+    -- Seed Option
     local textRandomSeed = display.newText(
         {
             text = "Random seed: ",
@@ -130,7 +121,6 @@ function scene:create( event )
             y = display.contentCenterY - 40,
         }
     )
-    textRandomSeed.isVisible = false
     local textfield_RandomSeed = native.newTextField(
         display.contentCenterX + fieldWidth * centerOffsetMultiplier,
         display.contentCenterY - 40,
@@ -139,7 +129,7 @@ function scene:create( event )
     )
     textfield_RandomSeed.inputType = "number"
     textfield_RandomSeed.text = tostring(composer.getVariable("randomSeed"))
-    textfield_RandomSeed.isVisible = false
+    
 
     -- Start button
     local buttonStartGame = widget.newButton( 
@@ -148,8 +138,9 @@ function scene:create( event )
             label = "Start Generation",
             x = display.contentCenterX,
             y = display.contentCenterY + 200,
-            width = 200,
-            height = 100,
+            width = 150,
+            height = 50,
+            shape = "roundedRect",
             onRelease = function(event)
                 composer.gotoScene("scenes.grid-scene", 
                 {
@@ -166,6 +157,7 @@ function scene:create( event )
             end
         }
     )
+    buttonStartGame.fillColor = { default = {1, 0, 0, 1}, over = {1, 0.1, 0.7, 0.4}}
 
     sceneGroup:insert(textGridX)
     sceneGroup:insert(textGridY)
@@ -181,17 +173,22 @@ function scene:create( event )
 
     sceneGroup:insert(buttonStartGame)
 
+    textfield_RandomSeed.isVisible = false
+    textRandomSeed.isVisible = false
+
+    -- Switch handler
     local function handleRandomListener(event)
         if event.target.isOn == true then
             textRandomSeed.isVisible = true
             textfield_RandomSeed.isVisible = true
-
-            print(event.target.isOn)
+            
         elseif event.target.isOn == false then
             textRandomSeed.isVisible = false
             textfield_RandomSeed.isVisible = false
         end
     end
+
+    
 
     -- anonymous function and closure
     local function variableListener(event, composerTarget)

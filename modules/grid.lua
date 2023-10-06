@@ -155,8 +155,6 @@ function Grid:insertPattern(pattern, x, y)
         patternX = coordinates[1]
         patternY = coordinates[2]
 
-        print(patternX.." "..patternY)
-
         if self:getCoordinate(patternX + x, patternY + y) then
             self:setCoordinate(patternX + x, patternY + y, 1) 
          end
