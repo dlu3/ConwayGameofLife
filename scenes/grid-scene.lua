@@ -1,8 +1,6 @@
 local composer = require( "composer" )
 local grid =     require( "modules.grid" )
 local pattern =  require( "modules.pattern" )
-local evolve =   require( "modules.evolve" )
-
 
 local scene = composer.newScene()
 local widget = require("widget")
@@ -13,9 +11,7 @@ local native = require("native")
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
--- Init variables
-
-local playing = false
+local is_playing = false
 local minCellSize = 1
 local maxCellSize = 20
 
@@ -36,31 +32,69 @@ local finalCellSize = (smallestCellSize > maxCellSize and maxCellSize) or
                      (smallestCellSize)
 
 local startGrid = Grid:new(width, height)
+local nextGrid = Grid:new(width, height)
+
 local gridGroup = display.newGroup()
 local controlGroup = display.newGroup()  
 
--- Display grid
-local function draw_grid(gridObject, displayGroup)
-    local offset = finalCellSize / 2
-    local gridArray = gridObject:getGrid()
-
-    -- Merge children clearer into function
-    while displayGroup.numChildren > 1 do
-        local child = displayGroup[2]
+--- Clears children from a DisplayObject
+-- @param group group object
+-- @param offset highest index to not be removed
+local function clear_children(group, offset)
+    while group.numChildren > offset do
+        local child = group[offset+1]
         if child then child:removeSelf() child = nil end
     end
+end
+
+--- Draws grid onto screen
+-- @param gridObject the grid to be read from
+-- @param displayGroup the display to draw grid into
+local function draw_grid(gridObject, displayGroup)
+    local offset = finalCellSize / 2 -- account for central anchor position
+    local gridArray = gridObject:get_grid()
+    clear_children(displayGroup, 1)
 
     for y = 1, #gridArray do
         for x = 1, #gridArray[y] do
             if gridArray[y][x] == 1 then
+                -- Render grid cells as circles
                 local cellObject = display.newCircle(
                     finalCellSize * x - offset,
                     finalCellSize * y - offset,
                     finalCellSize / 2)
                 displayGroup:insert(cellObject)
-
             end
         end
+    end
+end
+
+--- Functions to iterate per cycle
+-- @param grid the grid to be evolved
+-- @param group the group to be drawn in
+local function iterate(grid, group)
+    print("iterate")
+    grid:set_evolution() 
+    draw_grid(grid, group) 
+end
+
+--- Encloses iterate for use in timer functions
+local function iterateClosure()
+    return iterate(nextGrid, gridGroup)
+end
+
+--- Listener for evolution button
+-- @param event tap event
+local function play_life(event)
+    local button = event.target
+    if is_playing == false then
+        timer.performWithDelay( iterationSpeed, iterateClosure, -1, "play" )
+        button:setLabel(stop)
+        is_playing = true
+    elseif is_playing == true then
+        timer.pause("play")
+        button:setLabel(start)
+        is_playing = false
     end
 end
 
@@ -90,48 +124,71 @@ function scene:create( event )
     background:setStrokeColor(1, 0, 0)
     gridGroup:insert(background)
 
-    if params.random then startGrid:setAllRandom(randomSeed) end
-    local nextGrid = startGrid
+    if params.random then startGrid:set_all_random(randomSeed) end
+    nextGrid = startGrid
     draw_grid(nextGrid, gridGroup)
-    
-    timer.performWithDelay( 
-        iterationSpeed, 
-        function() 
-            nextGrid:setEvolution() 
-            draw_grid(nextGrid, gridGroup) end, 
-        -1, 
-        "play")
-    
 
+    --- Button for starting game
     local buttonPlay = widget.newButton( 
         {
             id = "button_StartEvolution",
             label = start,
             x = display.contentCenterX,
             y = display.contentCenterY + 200,
-            width = 100,
-            height = 50,
+            width = 80,
+            height = 40,
             -- Shape properties
             shape = "roundedRect",
-            onRelease = function(event)
-                if playing == false then
-                    timer.resume("play")
-                    event.target:setLabel(stop)
-                    playing = true
-                elseif playing == true then
-                    timer.pause("play")
-                    event.target:setLabel(start)
-                    playing = false
-                end
-                
+            fillColor = { default = {1, 1, 1, 1}, over = {1, 1, 1, 0.7}},
+            onRelease = play_life
+        }
+    )
+
+    --- Button for restarting game
+    local buttonRestart = widget.newButton( 
+        {
+            id = "button_StartEvolution",
+            label = "Restart",
+            x = display.contentCenterX - 100,
+            y = display.contentCenterY + 200,
+            width = 80,
+            height = 40,
+            -- Shape properties
+            shape = "roundedRect",
+            fillColor = { default = {1, 1, 1, 1}, over = {1, 1, 1, 0.7}},
+            onRelease = function()
+                timer.cancel( "play" )
+                clear_children(gridGroup, 1)
+                nextGrid = startGrid
+                draw_grid(startGrid, gridGroup)
             end
         }
     )
-    buttonPlay.fillColor = { default = {1, 0.2, 0.5, 0.7}, over = {1, 0.2, 0.5, 1}}
-    buttonPlay.shape = "roundedRect"
 
+    --- Button for creating new grid
+    local buttonNewGrid = widget.newButton( 
+        {
+            id = "button_StartEvolution",
+            label = "New Grid",
+            x = display.contentCenterX + 100,
+            y = display.contentCenterY + 200,
+            width = 80,
+            height = 40,
+            -- Shape properties
+            shape = "roundedRect",
+            fillColor = { default = {1, 1, 1, 1}, over = {1, 1, 1, 0.7}},
+            onRelease = function(event)
+                timer.cancel( "play" )
+                sceneGroup:removeSelf()
+                composer.gotoScene("scenes.config-scene")
+            end
+        }
+    )
+  
     controlGroup:insert(buttonPlay)
-    timer.pause("play")
+    controlGroup:insert(buttonRestart)
+    controlGroup:insert(buttonNewGrid)
+    
 
 end
 
