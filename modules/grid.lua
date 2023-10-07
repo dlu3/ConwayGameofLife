@@ -12,7 +12,10 @@ local coordinates = {
     {x = 0, y = 1},
     {x = 1, y = 1}}
 
--- Init new grid from arguments
+--- Creates new grid
+-- @param width grid width
+-- @param height grid height
+-- @return self
 function Grid:new(width, height)
     local self = setmetatable({}, Grid)
 
@@ -31,160 +34,102 @@ function Grid:new(width, height)
     return self
 end
 
-function Grid:getWidth()
+-- Getters
+
+--- Gets grid width
+-- @return width as int
+function Grid:get_width()
     return self.width
 end
 
-function Grid:getHeight()
+--- Gets grid height
+-- @return height as int
+function Grid:get_height()
     return self.height
 end
 
-function Grid:getGrid()
+--- Gets Grid's 2D array
+-- @return 2D array
+function Grid:get_grid()
     return self.array
 end
 
-function Grid:getCoordinate(x, y)
+--- Gets value of grid coordinate
+-- @param x position at x
+-- @param y position at y
+-- @return value at coordinate
+function Grid:get_coordinate(x, y)
     return self.array[y][x]
 end
 
--- Get 8 neighbours of x,y coordinates
-function Grid:getNeighbours(x, y)
+--- Gets 8 neighbouring cells of specific coordinate
+-- @param x position at x
+-- @param y position at y
+-- @return table of 1s and 0s
+function Grid:get_neighbours(x, y)
     local neighbours = {}
     for i=1, #coordinates do
         local xcoord, ycoord = x + coordinates[i].x, y + coordinates[i].y
-        if self.array[ycoord] and self.array[ycoord][xcoord] then
+        if self.array[ycoord] and self.array[ycoord][xcoord] then -- Check if coordinate exists
             neighbours[#neighbours+1] = self.array[ycoord][xcoord]
         end
     end
     return neighbours
 end
 
--- Set evolve function as part of grid object
-function Grid:setEvolution()
+-- Setters
 
+--- Sets value at grid coordinate
+-- @param x position at x
+-- @param y position at y
+-- @param val value to be set
+function Grid:set_coordinate(x, y, val)
+    if self.array[y][x] then
+        self.array[y][x] = val
+    end
+end
+
+--- Randomly sets all grid coordinates to 1s or 0s
+-- @param seed random seed number
+function Grid:set_all_random(seed)
+    local seed = seed or os.time()
+    math.randomseed(seed)
+    for y = 1, self.height, 1 do
+        for x = 1, self.width, 1 do
+            local v = math.floor(math.random(0, 1)) -- Int values only
+            self.array[y][x] = v
+        end
+    end
+end
+
+--- Simulate rules of Conway's Game of Life
+-- and modify own grid
+function Grid:set_evolution()
     for y = 1, #self.array do
         for x = 1, #self.array[y] do
-            
-            -- Process neighbours
+
+            -- Get and process neighbours
             local sum = 0
-            local neighbours = self:getNeighbours(x, y)
+            local neighbours = self:get_neighbours(x, y)
             for i = 1, #neighbours do
                 sum = sum + neighbours[i]
             end
 
             -- Apply rules
             if self.array[y][x] == 1 then
-                
                 if sum == 2 or sum == 3 then
-                    self:setCoordinate(x, y, 1)
+                    self:set_coordinate(x, y, 1)
                 else
-                    self:setCoordinate(x, y, 0)
+                    self:set_coordinate(x, y, 0)
                 end
 
             elseif self.array[y][x] == 0 then
-
                 if sum == 3 then
-                    self:setCoordinate(x, y, 1)
+                    self:set_coordinate(x, y, 1)
                 end
             end
         end
     end
-    
 end
 
--- Set coordinate value
-function Grid:setCoordinate(x, y, val)
-
-    if self.array[y][x] then
-        self.array[y][x] = val
-    end
-
-end
-
--- Randomly populate grid
--- Yoinked from main
-function Grid:setRandomGrid(maxVal, seed)
-
-    -- Validate at composer branch instead
-    if maxVal > self.width * self.height then
-        error("IO: Number of random cells exceed grid size")
-    elseif maxVal >= 0 then
-        error("IO: Max number of random cells not specified")
-    end
-
-    local seed = seed or os.time()
-    math.randomseed(seed)
-
-    local iteration = 1
-    while iteration < maxVal do
-        
-        local randX = math.random(1, self.width)
-        local randY = math.random(1, self.height)
-
-        while self:getCoordinate(randX, randY) == 1 do
-            randX = math.random(1, self.width)
-            randY = math.random(1, self.height)
-        end
-
-        self:setCoordinate(randX, randY, 1)
-        iteration = iteration + 1
-
-    end
-    print(iteration)
-end
-
-function Grid:setAllRandom(seed)
-    local seed = seed or os.time()
-
-    for y = 1, self.height, 1 do
-        for x = 1, self.width, 1 do
-            local v = math.floor(math.random(0, 4))
-            if v < 4 then self.array[y][x] = 0
-            elseif v == 4 then self.array[y][x] = 1 end
-        end
-    end
-
-end
-
-
-function Grid:insertPattern(pattern, x, y)
-
-    local x = x
-    local y = y
-
-    for i = 1, #pattern do
-        local patternX = pattern[i].x
-        local patternY = pattern[i].y
-
-        if self:getCoordinate(patternX + x, patternY + y) then
-            self:setCoordinate(patternX + x, patternY + y, 1) 
-         end
-
-    end
-end
-
--- From 19th 12:19 AM
-function Grid:setRandomGrid(maxVal)
-
-    -- Validate at composer branch instead
-    if maxVal > self.width * self.height then
-        error("IO: Number of random cells exceed grid size")
-    end
-
-    local iteration = 1
-    while iteration < maxVal do
-        
-        local randX = math.random(1, self.width)
-        local randY = math.random(1, self.height)
-
-        while self:getCoordinate(randX, randY) == 1 do
-            randX = math.random(1, self.width)
-            randY = math.random(1, self.height)
-        end
-
-        self:setCoordinate(randX, randY, 1)
-        iteration = iteration + 1
-
-    end
-    print(iteration)
-end
+return Grid
