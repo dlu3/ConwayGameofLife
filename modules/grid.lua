@@ -1,7 +1,7 @@
 Grid = {}
 Grid.__index = Grid
 
--- List of relative neighbour coordinates
+-- List of relative neighbour coordinates.
 local coordinates = {
     {x = -1, y = -1}, 
     {x = 0, y = -1}, 
@@ -12,10 +12,10 @@ local coordinates = {
     {x = 0, y = 1},
     {x = 1, y = 1}}
 
---- Creates new grid
--- @param width grid width
--- @param height grid height
--- @return self
+--- Creates new grid.
+-- @param width int: grid width.
+-- @param height int: grid height.
+-- @return self: Grid object.
 function Grid:new(width, height)
     local self = setmetatable({}, Grid)
 
@@ -34,38 +34,39 @@ function Grid:new(width, height)
     return self
 end
 
--- Getters
+-- Getters.
 
---- Gets grid width
--- @return width as int
+--- Gets grid width.
+-- @return width int: int representing width.
 function Grid:get_width()
     return self.width
 end
 
---- Gets grid height
--- @return height as int
+--- Gets grid height.
+-- @return height int: int representing height.
 function Grid:get_height()
     return self.height
 end
 
---- Gets Grid's 2D array
--- @return 2D array
+--- Gets Grid's 2D array.
+-- @return table: table representing grid's 2D array.
 function Grid:get_grid()
     return self.array
 end
 
---- Gets value of grid coordinate
--- @param x position at x
--- @param y position at y
--- @return value at coordinate
+--- Gets value of grid coordinate.
+-- @param x int: position at x.
+-- @param y int: position at y.
+-- @return int: value at coordinate.
 function Grid:get_coordinate(x, y)
     return self.array[y][x]
 end
 
---- Gets 8 neighbouring cells of specific coordinate
--- @param x position at x
--- @param y position at y
--- @return table of 1s and 0s
+--- Gets 8 neighbouring cells of specific coordinate.
+-- @param x int: position at x.
+-- @param y int: position at y.
+-- @return table: a table containing values of neighbouring cells.
+-- FIXME: Isn't grabbing all neighbours correctly
 function Grid:get_neighbours(x, y)
     local neighbours = {}
     for i=1, #coordinates do
@@ -77,12 +78,13 @@ function Grid:get_neighbours(x, y)
     return neighbours
 end
 
--- Setters
+-- Setters.
 
---- Sets value at grid coordinate
--- @param x position at x
--- @param y position at y
--- @param val value to be set
+--- Sets value at grid coordinate.
+-- @param x int: position at x.
+-- @param y int: position at y.
+-- @param val int: int to be set, although technically can be any type,
+-- will break code if int isn't used
 function Grid:set_coordinate(x, y, val)
     if self.array[y][x] then
         self.array[y][x] = val
