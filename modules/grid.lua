@@ -1,4 +1,5 @@
 Grid = {}
+local Grid = {}
 Grid.__index = Grid
 
 -- List of relative neighbour coordinates.
