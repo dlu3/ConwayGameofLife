@@ -161,6 +161,7 @@ local switch_DoRandom = widget.newSwitch(
         style = "checkbox"
     }
 )
+switch_DoRandom:setState( { isOn = composer.getVariable("doRandom") } )
 
 -- Random seed.
 
@@ -199,7 +200,7 @@ local buttonStartGame = widget.newButton(
         onRelease = function(event)
             composer.gotoScene("scenes.grid-scene", 
             {
-                effect = "crossFade",
+                effect = "fade",
                 time = 500
             })
         end
@@ -231,8 +232,8 @@ function scene:create( event )
 
     sceneGroup:insert(buttonStartGame)
 
-    textfield_RandomSeed.isVisible = false
-    textRandomSeed.isVisible = false
+    textfield_RandomSeed.isVisible = composer.getVariable("doRandom")
+    textRandomSeed.isVisible = composer.getVariable("doRandom")
 
     
 
