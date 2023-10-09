@@ -89,8 +89,20 @@ function Grid:set_coordinate(x, y, val)
     end
 end
 
---- Randomly sets all grid coordinates to 1s or 0s
--- @param seed random seed number
+--- Copies array from parameter and sets to self.
+-- Assumes array is from grid object.
+-- Does not validate size.
+-- @param array table: the array to be copied.
+function Grid:copy_grid(array)
+    for y = 1, #self.array do
+        for x = 1, #self.array[y] do
+            self:set_coordinate(x, y, array[y][x])
+        end
+    end
+end
+
+--- Randomly sets all grid coordinates to 1s or 0s.
+-- @param seed int: random seed number.
 function Grid:set_all_random(seed)
     local seed = seed or os.time()
     math.randomseed(seed)
