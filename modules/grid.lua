@@ -1,17 +1,17 @@
-Grid = {}
 local Grid = {}
 Grid.__index = Grid
 
 -- List of relative neighbour coordinates.
 local coordinates = {
-    {x = -1, y = -1}, 
-    {x = 0, y = -1}, 
-    {x = 1, y = -1}, 
+    {x = -1, y = -1},
+    {x = 0, y = -1},
+    {x = 1, y = -1},
     {x = -1, y = 0},
     {x = 1, y = 0},
     {x = -1, y = 1},
     {x = 0, y = 1},
-    {x = 1, y = 1}}
+    {x = 1, y = 1}
+}
 
 --- Creates new grid.
 -- @param width int: grid width.
@@ -19,19 +19,17 @@ local coordinates = {
 -- @return self: Grid object.
 function Grid:new(width, height)
     local self = setmetatable({}, Grid)
-
-    self.width = width or 1
-    self.height = height or 1
+    self.width = width or 0
+    self.height = height or 0
     self.array = {}
-    
+
     -- generate 2d array
-    for w = 0, width do
-        self.array[w] = {}
-        for y = 0, height do
-            self.array[w][y] = 0
+    for h = 1, height do
+        self.array[h] = {}
+        for w = 1, width do
+            self.array[h][w] = 0
         end
     end
-
     return self
 end
 
@@ -70,10 +68,12 @@ end
 -- FIXME: Isn't grabbing all neighbours correctly
 function Grid:get_neighbours(x, y)
     local neighbours = {}
-    for i=1, #coordinates do
-        local xcoord, ycoord = x + coordinates[i].x, y + coordinates[i].y
-        if self.array[ycoord] and self.array[ycoord][xcoord] then -- Check if coordinate exists
-            neighbours[#neighbours+1] = self.array[ycoord][xcoord]
+    for _, coords in ipairs(coordinates) do
+        local xcoord = x + coords.x
+        local ycoord = y + coords.y
+        if self.array[ycoord] and self.array[ycoord][xcoord] then
+            table.insert(neighbours, self.array[ycoord][xcoord])
+            -- print("x = "..x..", xc = "..xcoord..", y = "..y..", yc = "..ycoord..", v = "..self.array[ycoord][xcoord])
         end
     end
     return neighbours
@@ -109,28 +109,32 @@ end
 function Grid:set_all_random(seed)
     local seed = seed or os.time()
     math.randomseed(seed)
-    for y = 1, self.height, 1 do
-        for x = 1, self.width, 1 do
-            local v = math.floor(math.random(0, 1)) -- Int values only
-            self.array[y][x] = v
+    for y = 1, #self.array do
+        for x = 1, #self.array[y] do
+            local v = math.floor(math.random(0, 1)) -- Coin flip values only.
+            self:set_coordinate(x, y, v)
         end
     end
 end
 
 --- Simulate rules of Conway's Game of Life
--- and modify own grid
+-- Modifies own grid.
+-- FIXME: 
 function Grid:set_evolution()
     for y = 1, #self.array do
+        local help = {}
         for x = 1, #self.array[y] do
 
-            -- Get and process neighbours
+            -- Get and process neighbours.
             local sum = 0
             local neighbours = self:get_neighbours(x, y)
             for i = 1, #neighbours do
                 sum = sum + neighbours[i]
             end
 
-            -- Apply rules
+            table.insert(help, sum)
+
+            -- Apply rules.
             if self.array[y][x] == 1 then
                 if sum == 2 or sum == 3 then
                     self:set_coordinate(x, y, 1)
@@ -144,6 +148,7 @@ function Grid:set_evolution()
                 end
             end
         end
+        print(table.concat(help))
     end
 end
 
