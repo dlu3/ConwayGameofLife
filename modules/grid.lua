@@ -19,8 +19,8 @@ local coordinates = {
 -- @return self: Grid object.
 function Grid:new(width, height)
     local self = setmetatable({}, Grid)
-    self.width = width or 0
-    self.height = height or 0
+    self.width = width or 1
+    self.height = height or 1
     self.array = {}
 
     -- generate 2d array
@@ -68,12 +68,11 @@ end
 -- FIXME: Isn't grabbing all neighbours correctly
 function Grid:get_neighbours(x, y)
     local neighbours = {}
-    for _, coords in ipairs(coordinates) do
-        local xcoord = x + coords.x
-        local ycoord = y + coords.y
+    for i = 1, #coordinates do
+        local xcoord = x + coordinates[i].x
+        local ycoord = y + coordinates[i].y
         if self.array[ycoord] and self.array[ycoord][xcoord] then
             table.insert(neighbours, self.array[ycoord][xcoord])
-            -- print("x = "..x..", xc = "..xcoord..", y = "..y..", yc = "..ycoord..", v = "..self.array[ycoord][xcoord])
         end
     end
     return neighbours
@@ -119,12 +118,21 @@ end
 
 --- Simulate rules of Conway's Game of Life
 -- Modifies own grid.
--- FIXME: 
+-- Next time, DO NOT MODIFY THE GRID WHILE IT IS STILL LOOPING THROUGH ITSELF
 function Grid:set_evolution()
-    for y = 1, #self.array do
-        local help = {}
-        for x = 1, #self.array[y] do
 
+    -- Create a separate array to store new cell states
+    -- Then copy afterwards
+    local holdArray = {}
+    for h = 1, #self.array do
+        holdArray[h] = {}
+        for w = 1, #self.array[h] do
+            holdArray[h][w] = 0
+        end
+    end 
+
+    for y = 1, #self.array do
+        for x = 1, #self.array[y] do
             -- Get and process neighbours.
             local sum = 0
             local neighbours = self:get_neighbours(x, y)
@@ -132,24 +140,25 @@ function Grid:set_evolution()
                 sum = sum + neighbours[i]
             end
 
-            table.insert(help, sum)
-
             -- Apply rules.
             if self.array[y][x] == 1 then
                 if sum == 2 or sum == 3 then
-                    self:set_coordinate(x, y, 1)
+                    --self:set_coordinate(x, y, 1)
+                    holdArray[y][x] = 1
                 else
-                    self:set_coordinate(x, y, 0)
+                    --self:set_coordinate(x, y, 0)
+                    holdArray[y][x] = 0
                 end
 
             elseif self.array[y][x] == 0 then
                 if sum == 3 then
-                    self:set_coordinate(x, y, 1)
+                    --self:set_coordinate(x, y, 1)
+                    holdArray[y][x] = 1
                 end
             end
         end
-        print(table.concat(help))
     end
+    self:copy_grid(holdArray)
 end
 
 return Grid
