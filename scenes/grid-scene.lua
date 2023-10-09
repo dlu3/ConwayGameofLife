@@ -1,10 +1,8 @@
 local composer = require( "composer" )
 local grid =     require( "modules.grid" )
-local pattern =  require( "modules.pattern" )
 
 local scene = composer.newScene()
 local widget = require("widget")
-local native = require("native")
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -118,20 +116,20 @@ end
 -- "Borrowed" from https://stackoverflow.com/a/27895373
 -- @param event event: listening when tapping on grid
 local function tap_grid(event)
-    if event.phase == "began" then
-        -- Clamp x and y values to within grid range
-        local x = math.min(finalCellSize * width, math.max(1, event.x - gridGroup.x))
-        local y = math.min(finalCellSize * height, math.max(1, event.y - gridGroup.y))
-        local xcoord = math.ceil(x / finalCellSize)
-        local ycoord = math.ceil(y / finalCellSize)
-        local cell = nextGrid:get_coordinate(xcoord, ycoord)
+    -- Clamp x and y values to within grid range
+    local x = math.min(finalCellSize * width, math.max(1, event.xStart - gridGroup.x))
+    local y = math.min(finalCellSize * height, math.max(1, event.yStart - gridGroup.y))
 
+    local xcoord = math.ceil(x / finalCellSize)
+    local ycoord = math.ceil(y / finalCellSize)
+    local cell = nextGrid:get_coordinate(xcoord, ycoord)
+
+    if event.phase == "began" then
         if cell == 1 then
             nextGrid:set_coordinate(xcoord, ycoord, 0)
         elseif cell == 0 then
             nextGrid:set_coordinate(xcoord, ycoord, 1)
         end
-
         draw_grid(nextGrid, gridGroup)
     end
 end
@@ -150,6 +148,7 @@ function scene:create( event )
     
     gridGroup.x = display.contentCenterX - (finalCellSize * width) * 0.5
     gridGroup.y = 0
+    
 
     local background = display.newRect(
         finalCellSize * width/ 2,
@@ -159,7 +158,8 @@ function scene:create( event )
     background.strokeWidth = 3
     background:setFillColor(0)
     background:setStrokeColor(1, 0, 0)
-
+    gridGroup:insert(background) -- Putting this further back screws composer transition
+    
     if do_random then startGrid:set_all_random(randomSeed) end
     nextGrid:copy_grid(startGrid:get_grid()) -- NOTE: do NOT set a grid as another directly
     draw_grid(nextGrid, gridGroup)
@@ -169,7 +169,7 @@ function scene:create( event )
         {
             id = "button_StartEvolution",
             label = start,
-            x = display.contentCenterX,
+            x = display.contentCenterX + 50,
             y = display.contentCenterY + 200,
             width = 80,
             height = 40,
@@ -185,7 +185,7 @@ function scene:create( event )
         {
             id = "button_StartEvolution",
             label = "Restart",
-            x = display.contentCenterX - 100,
+            x = display.contentCenterX - 50,
             y = display.contentCenterY + 200,
             width = 80,
             height = 40,
@@ -196,9 +196,10 @@ function scene:create( event )
         }
     )
     
-    gridGroup:insert(background)
+    
     controlGroup:insert(buttonPlay)
     controlGroup:insert(buttonRestart)
+
     sceneGroup:insert(gridGroup)
     sceneGroup:insert(controlGroup)
 end
