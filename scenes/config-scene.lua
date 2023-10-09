@@ -1,6 +1,7 @@
 local composer = require( "composer" )
 local widget = require("widget")
 local native = require("native")
+local validate = require("modules.validate")
 
 local scene = composer.newScene()
 
@@ -9,15 +10,68 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
+-- label and field sizes and positions.
 local labelWidth = 100
 local labelHeight = 0
 local fieldWidth = 100
 local fieldHeight = 30
-local centerOffsetMultiplier = 0.6
+local centerOffsetMultiplier = 0.6 -- Pushes objects away from centre.
 
---- Width
+-- range values for validation
+local minWidth = 1
+local maxWidth = 200
+local minHeight = 1
+local maxHeight = 200
+local minSpeed = 1
+local maxSpeed = math.huge
+local minSeed = 0 
+local maxSeed = math.huge
 
--- Label for grid width
+--- Closure function for specifically setting doRandom composer variable.
+-- Includes hiding relevent objects.
+-- @param event event: the SwitchWidget.
+-- @param composerTarget string: name of composer variable.
+-- @param ...: handle visibility of variable widgets
+-- FIXME: sometimes fails to set visibility, variable logic will still work regardless.
+local function handleRandomListener(event, composerTarget, ...)
+    if event.target.isOn == true then
+        composer.setVariable( composerTarget, true )
+        for _, v in ipairs(arg) do
+            v.isVisible = true
+        end
+    elseif event.target.isOn == false then
+        composer.setVariable( composerTarget, false)
+        for _, v in ipairs(arg) do
+            v.isVisible = false
+        end
+    end
+end
+
+--- Closure function for setting composer variables from textfields.
+-- Includes validation function.
+-- @param event event: userInput event.
+-- @param composerTarget string: name of composer variable.
+-- @param min int: minimum int.
+-- @param max int: maximum int.
+-- @param output TextObject: label for displaying errors (optional).
+local function variableListener(event, composerTarget, min, max, button, output)
+    if event.phase == "ended" or event.phase == "submitted" or event.phase == "editing" then
+        local val = validate.validate_range(event.target.text, min, max)
+        if val.bool then
+            button:setEnabled(true)
+            button.fillColor = { default = {1, 0, 0, 1} }
+            composer.setVariable( composerTarget, event.target.text )
+        else
+            button:setEnabled(false)
+            button.fillColor = { default = {1, 0.1, 0.7, 0.4} }
+            if output then output.text = val.output end
+        end
+    end
+end
+
+--- Width.
+
+-- Label for grid width.
 local textGridX = display.newText(
     {
         text = "Grid Width: ",
@@ -28,8 +82,7 @@ local textGridX = display.newText(
         y = display.contentCenterY - 240
     }
 )
-
--- Text input for grid width
+-- Text input for grid width.
 local textfield_GridX = native.newTextField( 
     display.contentCenterX + fieldWidth * centerOffsetMultiplier,
     display.contentCenterY - 240,
@@ -38,9 +91,9 @@ local textfield_GridX = native.newTextField(
 textfield_GridX.inputType = "number"
 textfield_GridX.text = tostring(composer.getVariable("gridSizeX"))
 
---- Height
+--- Height.
 
--- Label for grid height
+-- Label for grid height.
 local textGridY = display.newText(
     {
         text = "Grid Height: ",
@@ -52,7 +105,7 @@ local textGridY = display.newText(
     }
 )
 
--- Text input for grid height
+-- Text input for grid height.
 local textfield_GridY = native.newTextField( 
     display.contentCenterX + fieldWidth * centerOffsetMultiplier,
     display.contentCenterY - 190,
@@ -62,9 +115,9 @@ local textfield_GridY = native.newTextField(
 textfield_GridY.inputType = "number"
 textfield_GridY.text = tostring(composer.getVariable("gridSizeY"))
 
---- Iteration speed
+--- Iteration speed.
 
--- Label for iteration speed
+-- Label for iteration speed.
 local textIterationSpeed = display.newText(
     {
         text = "Iteration speed: ",
@@ -76,7 +129,7 @@ local textIterationSpeed = display.newText(
     }
 )
 
--- Text input for iteration speed
+-- Text input for iteration speed.
 local textfield_IterationSpeed = native.newTextField( 
     display.contentCenterX + fieldWidth * centerOffsetMultiplier,
     display.contentCenterY - 140,
@@ -86,9 +139,9 @@ local textfield_IterationSpeed = native.newTextField(
 textfield_IterationSpeed.inputType = "number"
 textfield_IterationSpeed.text = tostring(composer.getVariable("iterationSpeed"))
 
---- Random cell generation
+--- Random cell generation.
 
--- Label for random cell generation
+-- Label for random cell generation.
 local textDoRandom = display.newText(
     {
         text = "Do Random?",
@@ -100,7 +153,7 @@ local textDoRandom = display.newText(
     }
 )
 
--- Checkbox for random cell generation
+-- Checkbox for random cell generation.
 local switch_DoRandom = widget.newSwitch(
     {
         x = display.contentCenterX + 30,
@@ -109,9 +162,9 @@ local switch_DoRandom = widget.newSwitch(
     }
 )
 
--- Random seed
+-- Random seed.
 
---- Label for random seed
+--- Label for random seed.
 local textRandomSeed = display.newText(
     {
         text = "Random seed: ",
@@ -123,7 +176,7 @@ local textRandomSeed = display.newText(
     }
 )
 
--- Text input for random seed
+-- Text input for random seed.
 local textfield_RandomSeed = native.newTextField(
     display.contentCenterX + fieldWidth * centerOffsetMultiplier,
     display.contentCenterY - 40,
@@ -133,7 +186,7 @@ local textfield_RandomSeed = native.newTextField(
 textfield_RandomSeed.inputType = "number"
 textfield_RandomSeed.text = tostring(composer.getVariable("randomSeed"))
 
---- Button to start life simulation
+--- Button to start life simulation.
 local buttonStartGame = widget.newButton( 
     {
         id = "button_StartGame",
@@ -147,13 +200,7 @@ local buttonStartGame = widget.newButton(
             composer.gotoScene("scenes.grid-scene", 
             {
                 effect = "crossFade",
-                time = 500,
-                params = {
-                    width = composer.getVariable("gridSizeX"),
-                    height = composer.getVariable("gridSizeY"),
-                    speed = composer.getVariable("iterationSpeed"),
-                    random = switch_DoRandom.isOn
-            }
+                time = 500
             })
         end
     }
@@ -187,33 +234,28 @@ function scene:create( event )
     textfield_RandomSeed.isVisible = false
     textRandomSeed.isVisible = false
 
-    --- Enable checkbox to hide random seed input
-    local function handleRandomListener(event)
-        if event.target.isOn == true then
-            textRandomSeed.isVisible = true
-            textfield_RandomSeed.isVisible = true
-            
-        elseif event.target.isOn == false then
-            textRandomSeed.isVisible = false
-            textfield_RandomSeed.isVisible = false
-        end
-    end
+    
 
-    --- Anonymous function for setting composer variables
-    -- @param event userInput event
-    -- @param composerTarget composer variable
-    local function variableListener(event, composerTarget)
-        if event.phase == "ended" or event.phase == "submitted" then
-            composer.setVariable( composerTarget, event.target.text )
-            print(composerTarget.." "..composer.getVariable( composerTarget ))
-        end
-    end
-
-    textfield_GridX:addEventListener("userInput", function(target) variableListener(target, "gridSizeX") end)
-    textfield_GridY:addEventListener("userInput", function(target) variableListener(target, "gridSizeY") end)
-    textfield_IterationSpeed:addEventListener("userInput", function(target) variableListener(target, "iterationSpeed") end)
-    switch_DoRandom:addEventListener("tap", handleRandomListener)
-    textfield_RandomSeed:addEventListener("userInput", function(target) variableListener(target, "randomSeed") end)
+    textfield_GridX:addEventListener(
+        "userInput", 
+        function(target) variableListener(target, "gridSizeX", minWidth, maxWidth, buttonStartGame, nil) end
+    )
+    textfield_GridY:addEventListener(
+        "userInput", 
+        function(target) variableListener(target, "gridSizeY", minHeight, maxHeight, buttonStartGame, nil) end
+    )
+    textfield_IterationSpeed:addEventListener(
+        "userInput", 
+        function(target) variableListener(target, "iterationSpeed", minSpeed, maxSpeed, buttonStartGame, nil) end
+    )
+    switch_DoRandom:addEventListener(
+        "tap", 
+        function(target) handleRandomListener(target, "doRandom" ,textRandomSeed, textfield_RandomSeed) end
+    )
+    textfield_RandomSeed:addEventListener(
+        "userInput", 
+        function(target) variableListener(target, "randomSeed", minSeed, maxSeed, buttonStartGame, nil) end
+    )
 
 end
 
@@ -226,6 +268,8 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
+
+        switch_DoRandom.isOn = false
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
@@ -243,7 +287,7 @@ function scene:hide( event )
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
 
-        -- Native objects do not remove themselves automatically
+        -- Native objects do not remove themselves automatically.
         textfield_GridX:removeSelf()
         textfield_GridY:removeSelf()
         textfield_IterationSpeed:removeSelf()
@@ -262,6 +306,7 @@ function scene:destroy( event )
 
     local sceneGroup = self.view
     -- Code here runs prior to the removal of scene's view
+    composer.removeScene( "scenes.config-scene", false )
 
 end
 
