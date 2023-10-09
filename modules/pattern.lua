@@ -2,7 +2,7 @@ Pattern = {}
 Pattern.__index = Pattern
 
 
--- Hard-coded table of patterns
+-- Hard-coded table of patterns.
 local patterns = {
     blinker_h = {
         {1, 1},
@@ -38,9 +38,9 @@ local patterns = {
         {5, 4}}
 }
 
---- Get pattern from internal table
--- @param patternName name of pattern
--- @return table of pattern in grid coordinates
+--- Get pattern from internal table.
+-- @param patternName name of pattern.
+-- @return table of pattern in grid coordinates.
 function Pattern:getPattern(patternName)
     return patterns[patternName]
 end
